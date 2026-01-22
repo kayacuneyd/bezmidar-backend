@@ -17,6 +17,7 @@ const PORT =
 
 const logDir = path.join(process.cwd(), 'tmp')
 const logFile = path.join(logDir, 'startup.log')
+const envFile = path.join(logDir, 'env.json')
 const log = (message) => {
     try {
         if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
@@ -27,6 +28,18 @@ const log = (message) => {
 }
 
 log(`boot: NODE_ENV=${process.env.NODE_ENV || ''} PORT=${process.env.PORT || ''} PASSENGER_APP_PORT=${process.env.PASSENGER_APP_PORT || ''} API_PORT=${process.env.API_PORT || ''}`)
+try {
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
+    fs.writeFileSync(envFile, JSON.stringify({
+        NODE_ENV: process.env.NODE_ENV,
+        PORT: process.env.PORT,
+        PASSENGER_APP_PORT: process.env.PASSENGER_APP_PORT,
+        PASSENGER_APP_ENV: process.env.PASSENGER_APP_ENV,
+        PASSENGER_APP_ROOT: process.env.PASSENGER_APP_ROOT
+    }, null, 2))
+} catch (_) {
+    // noop
+}
 
 process.on('uncaughtException', (err) => {
     log(`uncaughtException: ${err?.stack || err}`)
