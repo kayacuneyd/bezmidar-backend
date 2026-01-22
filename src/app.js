@@ -63,8 +63,8 @@ app.use((req, res) => {
     res.status(404).json({ message: 'Endpoint bulunamadı' })
 })
 
-app.listen(PORT, () => {
-    console.log(`🚀 Backend running on http://localhost:${PORT}`)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Backend running on port ${PORT}`)
 })
 
 export default app
