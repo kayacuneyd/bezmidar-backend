@@ -11,8 +11,25 @@ const app = express()
 const PORT = process.env.PORT || process.env.API_PORT || 3001
 
 // Middleware
+const defaultOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://bezmidar.de',
+    'https://www.bezmidar.de'
+]
+const envOrigins = (process.env.FRONTEND_ORIGINS || process.env.APP_URL || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean)
+
+const allowedOrigins = envOrigins.length ? envOrigins : defaultOrigins
+
 app.use(cors({
-    origin: process.env.APP_URL || 'http://localhost:3000',
+    origin: (origin, cb) => {
+        if (!origin) return cb(null, true)
+        if (allowedOrigins.includes(origin)) return cb(null, true)
+        return cb(new Error(`CORS blocked for origin: ${origin}`))
+    },
     credentials: true
 }))
 app.use(express.json())
