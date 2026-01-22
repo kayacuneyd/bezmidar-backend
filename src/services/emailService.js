@@ -1,11 +1,11 @@
-import { Resend } from 'resend'
-import dotenv from 'dotenv'
+const { Resend } = require('resend')
+const dotenv = require('dotenv')
 
 dotenv.config()
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-export const sendMagicLinkEmail = async (email, token) => {
+const sendMagicLinkEmail = async (email, token) => {
   const magicLink = `${process.env.APP_URL}/auth/verify?token=${token}`
 
   // In development, just log the link
@@ -38,7 +38,7 @@ export const sendMagicLinkEmail = async (email, token) => {
             HatimConnect - Kolektif Kuran Hatimi
           </p>
         </div>
-      `
+      `,
     })
 
     if (error) {
@@ -46,14 +46,14 @@ export const sendMagicLinkEmail = async (email, token) => {
       throw new Error('Email gönderilemedi')
     }
 
-    return { success: true, messageId: data?.id }
+    return { success: true, messageId: data && data.id }
   } catch (error) {
     console.error('Email error:', error)
     throw error
   }
 }
 
-export const sendHatimInviteEmail = async (email, hatimTitle, inviteLink, inviterName) => {
+const sendHatimInviteEmail = async (email, hatimTitle, inviteLink, inviterName) => {
   if (process.env.NODE_ENV === 'development') {
     console.log('📧 Invite Link:', inviteLink)
     return { success: true, devLink: inviteLink }
@@ -80,13 +80,15 @@ export const sendHatimInviteEmail = async (email, hatimTitle, inviteLink, invite
             HatimConnect - Kolektif Kuran Hatimi
           </p>
         </div>
-      `
+      `,
     })
 
     if (error) throw new Error('Email gönderilemedi')
-    return { success: true, messageId: data?.id }
+    return { success: true, messageId: data && data.id }
   } catch (error) {
     console.error('Invite email error:', error)
     throw error
   }
 }
+
+module.exports = { sendMagicLinkEmail, sendHatimInviteEmail }

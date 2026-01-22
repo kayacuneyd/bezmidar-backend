@@ -1,32 +1,27 @@
-import mysql from 'mysql2/promise'
-import dotenv from 'dotenv'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
-import { readFileSync } from 'fs'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const mysql = require('mysql2/promise')
+const dotenv = require('dotenv')
+const { join } = require('path')
 
 dotenv.config({ path: join(__dirname, '../.env') })
 
 async function setupDatabase() {
-    console.log('🔄 Veritabanına bağlanılıyor...')
-    console.log(`   Host: ${process.env.DB_HOST}`)
-    console.log(`   Database: ${process.env.DB_NAME}`)
+  console.log('🔄 Veritabanına bağlanılıyor...')
+  console.log(`   Host: ${process.env.DB_HOST}`)
+  console.log(`   Database: ${process.env.DB_NAME}`)
 
-    const connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT) || 3306,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        multipleStatements: true
-    })
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT, 10) || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    multipleStatements: true,
+  })
 
-    console.log('✅ Veritabanına bağlandı!')
+  console.log('✅ Veritabanına bağlandı!')
 
-    // Create tables
-    const queries = `
+  // Create tables
+  const queries = `
     -- Users table
     CREATE TABLE IF NOT EXISTS users (
       id INT PRIMARY KEY AUTO_INCREMENT,
@@ -110,23 +105,23 @@ async function setupDatabase() {
     );
   `
 
-    console.log('🔄 Tablolar oluşturuluyor...')
-    await connection.query(queries)
-    console.log('✅ Tablolar oluşturuldu!')
+  console.log('🔄 Tablolar oluşturuluyor...')
+  await connection.query(queries)
+  console.log('✅ Tablolar oluşturuldu!')
 
-    // Show created tables
-    const [tables] = await connection.query('SHOW TABLES')
-    console.log('\n📋 Veritabanındaki tablolar:')
-    tables.forEach(t => {
-        const tableName = Object.values(t)[0]
-        console.log(`   - ${tableName}`)
-    })
+  // Show created tables
+  const [tables] = await connection.query('SHOW TABLES')
+  console.log('\n📋 Veritabanındaki tablolar:')
+  tables.forEach((t) => {
+    const tableName = Object.values(t)[0]
+    console.log(`   - ${tableName}`)
+  })
 
-    await connection.end()
-    console.log('\n✅ Veritabanı kurulumu tamamlandı!')
+  await connection.end()
+  console.log('\n✅ Veritabanı kurulumu tamamlandı!')
 }
 
-setupDatabase().catch(err => {
-    console.error('❌ Hata:', err.message)
-    process.exit(1)
+setupDatabase().catch((err) => {
+  console.error('❌ Hata:', err.message)
+  process.exit(1)
 })
