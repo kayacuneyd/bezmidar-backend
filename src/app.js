@@ -3,9 +3,9 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
-import authRoutes from './routes/auth.js'
-import userRoutes from './routes/users.js'
-import hatimRoutes from './routes/hatims.js'
+let authRoutes
+let userRoutes
+let hatimRoutes
 
 dotenv.config()
 
@@ -47,6 +47,18 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
     log(`unhandledRejection: ${err?.stack || err}`)
 })
+
+try {
+    const authMod = await import('./routes/auth.js')
+    const userMod = await import('./routes/users.js')
+    const hatimMod = await import('./routes/hatims.js')
+    authRoutes = authMod.default
+    userRoutes = userMod.default
+    hatimRoutes = hatimMod.default
+} catch (err) {
+    log(`importError: ${err?.stack || err}`)
+    throw err
+}
 
 // Middleware
 const defaultOrigins = [
