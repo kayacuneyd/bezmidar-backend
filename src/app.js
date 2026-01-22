@@ -10,7 +10,7 @@ import hatimRoutes from './routes/hatims.js'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || process.env.API_PORT || 3001
+const PORT = process.env.PORT || process.env.PASSENGER_APP_PORT || process.env.API_PORT || 3001
 
 const logDir = path.join(process.cwd(), 'tmp')
 const logFile = path.join(logDir, 'startup.log')
@@ -23,7 +23,7 @@ const log = (message) => {
     }
 }
 
-log(`boot: NODE_ENV=${process.env.NODE_ENV || ''} PORT=${process.env.PORT || ''} API_PORT=${process.env.API_PORT || ''}`)
+log(`boot: NODE_ENV=${process.env.NODE_ENV || ''} PORT=${process.env.PORT || ''} PASSENGER_APP_PORT=${process.env.PASSENGER_APP_PORT || ''} API_PORT=${process.env.API_PORT || ''}`)
 
 process.on('uncaughtException', (err) => {
     log(`uncaughtException: ${err?.stack || err}`)
