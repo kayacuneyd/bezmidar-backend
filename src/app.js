@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
 import authRoutes from './routes/auth.js'
 import userRoutes from './routes/users.js'
 import hatimRoutes from './routes/hatims.js'
@@ -9,6 +11,26 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || process.env.API_PORT || 3001
+
+const logDir = path.join(process.cwd(), 'tmp')
+const logFile = path.join(logDir, 'startup.log')
+const log = (message) => {
+    try {
+        if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
+        fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${message}\n`)
+    } catch (_) {
+        // noop: logging should never crash app
+    }
+}
+
+log(`boot: NODE_ENV=${process.env.NODE_ENV || ''} PORT=${process.env.PORT || ''} API_PORT=${process.env.API_PORT || ''}`)
+
+process.on('uncaughtException', (err) => {
+    log(`uncaughtException: ${err?.stack || err}`)
+})
+process.on('unhandledRejection', (err) => {
+    log(`unhandledRejection: ${err?.stack || err}`)
+})
 
 // Middleware
 const defaultOrigins = [
@@ -64,6 +86,7 @@ app.use((req, res) => {
 })
 
 app.listen(PORT, '0.0.0.0', () => {
+    log(`listening: port=${PORT}`)
     console.log(`🚀 Backend running on port ${PORT}`)
 })
 
