@@ -10,7 +10,10 @@ import hatimRoutes from './routes/hatims.js'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || process.env.PASSENGER_APP_PORT || process.env.API_PORT || 3001
+const PORT =
+    process.env.PORT ||
+    process.env.PASSENGER_APP_PORT ||
+    (process.env.NODE_ENV === 'production' ? undefined : (process.env.API_PORT || 3001))
 
 const logDir = path.join(process.cwd(), 'tmp')
 const logFile = path.join(logDir, 'startup.log')
@@ -85,9 +88,13 @@ app.use((req, res) => {
     res.status(404).json({ message: 'Endpoint bulunamadı' })
 })
 
-app.listen(PORT, '0.0.0.0', () => {
-    log(`listening: port=${PORT}`)
-    console.log(`🚀 Backend running on port ${PORT}`)
-})
+if (PORT) {
+    app.listen(PORT, '0.0.0.0', () => {
+        log(`listening: port=${PORT}`)
+        console.log(`🚀 Backend running on port ${PORT}`)
+    })
+} else {
+    log('listening: skipped (no PORT set)')
+}
 
 export default app
