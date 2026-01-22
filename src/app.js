@@ -113,14 +113,19 @@ app.use((req, res) => {
     res.status(404).json({ message: 'Endpoint bulunamadı' })
 })
 
-if (process.env.NODE_ENV !== 'production') {
-    const devPort = PORT || 3001
+if (PORT) {
+    app.listen(PORT, '0.0.0.0', () => {
+        log(`listening: port=${PORT}`)
+        console.log(`🚀 Backend running on port ${PORT}`)
+    })
+} else if (process.env.NODE_ENV !== 'production') {
+    const devPort = 3001
     app.listen(devPort, '0.0.0.0', () => {
         log(`listening: dev port=${devPort}`)
         console.log(`🚀 Backend running on port ${devPort}`)
     })
 } else {
-    log('passenger: production mode, no manual listen')
+    log('listening: skipped (no PORT set)')
 }
 
 export default app
